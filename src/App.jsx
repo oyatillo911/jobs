@@ -2,66 +2,64 @@
 // 1-QADAM: TASHQI DUNYODAN KERAKLI ASBOBLARNI CHAQIRISH (IMPORT BO'LIMI)
 // =========================================================================================================
 
-// "import" — "olib kelish" buyrug'i. 
-// "React" — butun kutubxona boshqaruvchisi. JSX (HTML kodni JS ichida yozish) ishlashi uchun poydevor.
-// "{ useState }" — Jingalak qavs { } ichida: React zavodidagi 100 ta asbobdan aynan "xotira yaratuvchi" asbobni ajratib olyapmiz.
-// "from 'react'" — bu asboblar "node_modules/react" degan katta qutidan olinishini bildiradi.
-// ";" — gap tugaganini bildiruvchi nuqta.
-import React, { useState } from "react";
+// "import" — boshqa fayllar yoki kutubxonalardan tayyor asboblarni olib kelish buyrug'i.
+// "{ useState }" — React kutubxonasining "Reaktiv Xotira" yaratuvchi asosiy asbobi.
+// Bu asbob yordamida yaratilgan ma'lumot o'zgarganda, React ekranni avtomatik ravishda yangilaydi (re-render qiladi).
+import { useState } from "react";
 
-// "BrowserRouter" — butun saytni qamrab oluvchi "yo'l xaritasi kompas"i. Saytda sahifalar yangilanmasdan almashishi uchun javobgar.
-// "Route" — bitta aniq yo'nalish (masalan, "/saqlangan" yo'liga qaysi sahifa to'g'ri kelishi).
-// "Routes" — bir nechta yo'nalishlarni o'z ichiga olgan "yo'l ko'rsatkichlar chorrahasi".
-// "from 'react-router-dom'" — sahifalararo harakatlanish uchun brauzer asboblari joylashgan quti.
+// "BrowserRouter" — Butun veb-ilovamizni o'rab turuvchi, brauzer URL manzilini nazorat qiluvchi "Katta kompas".
+// "Route" — Bitta aniq yo'l (masalan: "/kompaniyalar" manziliga qaysi sahifa ochilishi kerakligini belgilovchi qoida).
+// "Routes" — Barcha yo'nalishlarni o'z ichiga olgan chorraha (yo'l xaritasi).
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
-// "./Navbar" — shu fayl turgan papkadagi Navbar.jsx faylidan yuqori menyu qismini (bosh menyu) chaqirish.
-// Jingalak qavssiz, chunki u fayldan asosiy "export default" qilib chiqarilgan.
+// Saytning yuqori qismidagi doimiy bosh menyu (Navbar) komponenti:
 import Navbar from "./Navbar";
 
-// "./pages/VakansiyalarPage" — "pages" papkasidagi VakansiyalarPage (barcha ish o'rinlari sahifasi)ni chaqirish.
+// Asosiy sahifa — Barcha mavjud ish o'rinlari (vakansiyalar) va filtrlar joylashgan sahifa:
 import VakansiyalarPage from "./pages/VakansiyalarPage";
 
-// "./pages/SaqlanganPage" — saqlab qo'yilgan vakansiyalar ko'rinadigan alohida sahifani olib kelish.
+// Saqlanganlar sahifasi — Foydalanuvchi o'ziga yoqtirib, xatcho'p (bookmark) qilgan ishlar ro'yxati:
 import SaqlanganPage from "./pages/SaqlanganPage";
 
-// "./components/ArizaModal" — foydalanuvchi ishga ariza topshirmoqchi bo'lib tugmani bosganda ekranda qalqib chiquvchi oyna (modal).
+// Kompaniyalar sahifasi — Saytdagi barcha ish beruvchi kompaniyalar haqida batafsil ma'lumot beruvchi sahifa:
+import KompaniyalarPage from "./pages/KompaniyalarPage";
+
+// Mening e'lonlarim sahifasi — Foydalanuvchi o'zi joylashtirgan e'lonlarni ko'rish, tahrirlash va o'chirish kabineti:
+import MeningElonlarimPage from "./pages/MeningElonlarimPage";
+
+// Blog sahifasi — Jobs platformasi bo'yicha yo'riqnomalar, karyera va rezyume maslahatlari sahifasi:
+import BlogPage from "./pages/BlogPage";
+
+// Ariza topshirish modali — Foydalanuvchi "Ariza topshirish" tugmasini bosganda qalqib chiquvchi anketali oyna:
 import ArizaModal from "./components/ArizaModal";
 
+// E'lon joylashtirish va tahrirlash modali — Yangi ish o'rni qo'shish yoki mavjudini o'zgartirish oynasi:
+import ElonJoylashModal from "./components/ElonJoylashModal";
 
 // =========================================================================================================
 // 2-QADAM: ASOSIY KOMPONENT (APP FUNKSIYASI) — BUTUN SAYTNING BOSHQARUV MARKAZI
 // =========================================================================================================
 
-// "function" — yangi mustaqil funksiya (vazifa bajaruvchi mashina) yaratish kalit so'zi.
-// "App" — bosh komponentning nomi. React-da barcha komponentlar KATTA harf bilan boshlanishi shart!
-// "()" — funksiyaning parametrlari (eshigi). App-ga tashqaridan hech narsa kirmaydi, shuning uchun bo'sh.
-// "{" — funksiya tanasining boshlanishi.
 function App() {
-
   // -------------------------------------------------------------------------------------------------------
-  // STATIK (O'ZGARMAS) MA'LUMOTLAR BAZASI — SAYTNING TAXTASI VA E'LONLARI
+  // STANDART (BOSHLANG'ICH) MA'LUMOTLAR BAZASI
   // -------------------------------------------------------------------------------------------------------
 
-  // "const" — o'zgarmas qiymat (constant). Ya'ni bu ro'yxatning o'zi butunlay boshqa narsaga almashtirib yuborilmaydi.
-  // "vakansiyalarRoyxati" — barcha mavjud ish o'rinlari ro'yxati.
-  // "=" — tenglash belgisi (o'ng tarafdagi ma'lumotni chapdagi qutiga solish).
-  // "[" — Massiv (Array) boshlanishi. Ichida bir nechta ish o'rinlari ketma-ket joylashadi.
-  const vakansiyalarRoyxati = [
-    // "{" — Obyekt (bitta ish o'rnining to'liq guvohnomasi, barcha ma'lumotlari).
+  // "boshlangichVakansiyalar" — Agar localStorage bo'sh bo'lsa yoki sayt birinchi ochilganda ishlatiladigan ro'yxat:
+  const boshlangichVakansiyalar = [
     {
-      id: 1, // "id" — takrorlanmas raqam (pasport seriyasi). Har bir ishning o'ziga xos ID-si bo'lishi shart!
-      letter: "D", // Kompaniya logotipi o'rnida chiqadigan bosh harf ("Datalab" so'zidan).
-      title: "Senior frontend dasturchi", // Kasb nomi (matn ko'rinishida, qo'shtirnoqda).
-      salaryText: "8 – 12 mln", // Saytda chiroyli ko'rinishi uchun mo'ljallangan oylik maosh matni.
-      salaryMax: 12, // Filtrlash oson bo'lishi uchun sof raqam ko'rinishidagi maksimal oylik (12 mln).
-      company: "Datalab · IT Park rezidenti", // Ish beruvchi tashkilot nomi.
-      city: "Toshkent", // Ish joylashgan shahar (filtrlashda kerak bo'ladi).
-      category: "IT va dasturlash", // Soha/yo'nalish nomi.
-      time: "2 soat oldin", // E'lon qachon qo'yilgani haqida foydalanuvchiga xabar.
-      createdAt: 6, // Vaqt bo'yicha saralash (sorting) uchun qo'yilgan raqam (qanchalik katta bo'lsa, shuncha yangi).
-      tags: ["Masofaviy", "To‘liq stavka"], // Qo'shimcha belgilar massivi (remote yoki ofis).
-    }, // Vergul — keyingi e'longa o'tish belgisi.
+      id: 1, // Takrorlanmas unikal ID raqami (pasport seriyasi kabi)
+      letter: "D", // Kompaniya logotipidagi bosh harf
+      title: "Senior frontend dasturchi", // Kasb/Lavozim nomi
+      salaryText: "8 – 12 mln", // Saytda chiroyli ko'rinuvchi oylik matni
+      salaryMax: 12, // Filtrlash uchun sof son ko'rinishidagi maosh (mln)
+      company: "Datalab · IT Park rezidenti", // Ish beruvchi tashkilot
+      city: "Toshkent", // Shahar
+      category: "IT va dasturlash", // Faoliyat sohasi
+      time: "2 soat oldin", // E'lon berilgan vaqt
+      createdAt: 6, // Saralash (sorting) uchun vaqt ko'rsatkichi
+      tags: ["Masofaviy", "To‘liq stavka"], // Bandlik turlari
+    },
     {
       id: 2,
       letter: "D",
@@ -127,18 +125,19 @@ function App() {
       createdAt: 1,
       tags: ["Qisman bandlik"],
     },
-  ]; // Massiv yakunlandi.
+  ];
 
-  // Shaharlar ro'yxati (har bir shaharning nomi va unda nechta ish borligi soni)
+  // Shaharlar ro'yxati (boshlang'ich filtr variantlari)
   const shaharlar = [
     { name: "Toshkent", count: 84 },
     { name: "Samarqand", count: 21 },
     { name: "Farg‘ona", count: 12 },
     { name: "Andijon", count: 9 },
     { name: "Nukus", count: 2 },
+    { name: "Namangan", count: 2 },
   ];
 
-  // Sohalar ro'yxati (kategoriya bo'yicha saralash tugmalari uchun)
+  // Sohalar ro'yxati (kategoriya filtri variantlari)
   const sohalar = [
     { name: "IT va dasturlash", count: 45 },
     { name: "Moliya va buxgalteriya", count: 18 },
@@ -147,264 +146,307 @@ function App() {
     { name: "Ta‘lim", count: 8 },
   ];
 
-  // Bandlik turlari (kun tartibi: uyda o'tiribmi yoki ofisdami)
+  // Bandlik turlari (ish jadvali filtri)
   const bandlikTurlari = [
     { name: "To‘liq stavka", count: 70 },
     { name: "Masofaviy", count: 22 },
     { name: "Qisman bandlik", count: 14 },
   ];
 
-  // Maosh variantlari filtri (foydalanuvchi o'ziga yoqqan maosh chegarasini tanlashi uchun)
+  // Maosh variantlari filtri (radio buttonlar uchun)
   const maoshVariantlari = [
-    { id: "all", label: "Barchasi" },
-    { id: "2plus", label: "2 mln dan" },
-    { id: "2to5", label: "2 – 5 mln" },
-    { id: "5to10", label: "5 – 10 mln" },
-    { id: "10plus", label: "10 mln dan yuqori" },
+    { id: 1, label: "Barchasi" },
+    { id: 2, label: "2 mln dan" },
+    { id: 3, label: "2 – 5 mln" },
+    { id: 4, label: "5 – 10 mln" },
+    { id: 5, label: "10 mln dan yuqori" },
   ];
-
 
   // -------------------------------------------------------------------------------------------------------
   // 3-QADAM: STATE (REAKTIV XOTIRA) — SAYTNING O'ZGARUVCHAN YURAGI
   // -------------------------------------------------------------------------------------------------------
 
-  // 1-XOTIRA: Saqlangan ishlar ro'yxati
-  // savedjob: Hozirgi saqlangan ishlar qutisi (boshida bo'sh ro'yxat: []).
-  // setsavedjob: Shu qutini qonuniy ravishda o'zgartiruvchi yagona pult funksiya.
-  // useState([]): Boshlang'ich holat — bo'sh massiv.
+  // 1-XOTIRA: Vakansiyalar ro'yxati (yangi e'lon qo'shilganda dinamik yangilanadi va brauzerda saqlanadi)
+  // localStorage orqali foydalanuvchi sahifani yangilasa ham yangi qo'shilgan ishlar yo'qolib ketmaydi!
+  const [vakansiyalarRoyxati, setVakansiyalarRoyxati] = useState(() => {
+    const saqlangan = localStorage.getItem("job_board_vakansiyalar");
+    if (saqlangan) {
+      try {
+        return JSON.parse(saqlangan);
+      } catch (err) {
+        console.error("Vakansiyalarni o'qishda xatolik:", err);
+      }
+    }
+    return boshlangichVakansiyalar;
+  });
+
+  // 2-XOTIRA: Saqlangan (xatcho'pga olingan) ishlar ro'yxati
   const [savedjob, setsavedjob] = useState([]);
 
-  // 2-XOTIRA: Foydalanuvchi ariza topshirib bo'lgan ishlar ro'yxati
-  // appliedJobs: Qaysi ishlarga ariza yuborilganini eslab qoladi.
-  // setAppliedJobs: Yangi ariza yuborilganda bu ro'yxatni yangilovchi pult.
+  // 3-XOTIRA: Foydalanuvchi ariza topshirib bo'lgan vakansiyalar ro'yxati
   const [appliedJobs, setAppliedJobs] = useState([]);
 
-  // 3-XOTIRA: Ariza modalida ayni daqiqada qaysi ish ko'rsatilayotgani
-  // selectedJobForApply: Agar null bo'lsa — demak hech qaysi ish tanlanmagan, modal oyna YOPIQ.
-  // Agar ichida bitta ish obyekti turgan bo'lsa — o'sha ish haqidagi modal oyna OCHIQ.
-  // setSelectedJobForApply: Modalni ochish (ish berish) yoki yopish (null qilish) pulti.
+  // 4-XOTIRA: Ariza topshirish modalida ayni daqiqada qaysi vakansiya ochiqligi (null bo'lsa modal yopiq)
   const [selectedJobForApply, setSelectedJobForApply] = useState(null);
 
+  // 5-XOTIRA: Yangi e'lon joylashtirish modali ochiq/yopiq holati (boolean: true/false)
+  const [isElonModalOpen, setIsElonModalOpen] = useState(false);
+
+  // 6-XOTIRA: Ayni daqiqada tahrirlanayotgan e'lon obyekti (agar null bo'lsa — demak yangi e'lon qo'shilmoqda)
+  const [editingJob, setEditingJob] = useState(null);
+
+  // FOYDALANUVCHINING O'Z E'LONLARI RO'YXATI:
+  // "isMyJob: true" belgisi bo'lgan yoki keyinchalik qo'shilgan (ID > 100) barcha vakansiyalarni ajratib olamiz:
+  const myJobs = vakansiyalarRoyxati.filter(
+    (job) =>
+      Boolean(job.isMyJob) || (typeof job.id === "number" && job.id > 100),
+  );
 
   // -------------------------------------------------------------------------------------------------------
   // 4-QADAM: MANTIQIY FUNKSIYALAR (HODISALARNI BOSHQARUVCHILAR / HANDLERS)
   // -------------------------------------------------------------------------------------------------------
 
-  // A) ARIZA MUVAFFAQIYATLI YUBORILGANDA ISHGA TUSHUVCHI FUNKSIYA
-  // (job) — qaysi vakansiyaga ariza yuborilgani parametr sifatida kirib keladi.
+  // A) ARIZA MUVAFFAQIYATLI YUBORILGANDA ISHGA TUSHUVCHI FUNKSIYA:
   const handleApplySuccess = (job) => {
-    // setAppliedJobs pultini chaqiryapmiz.
-    // "(prev) => { ... }" — prev (previous) — ayni shu lahzagacha topshirilgan barcha arizalar ro'yxati.
     setAppliedJobs((prev) => {
-      // .some() — Detektiv asbob. Ro'yxatdagi kamida bitta ishning ID raqami biz yuborgan ishning ID siga tengmi?
+      // .some() — tekshiramiz: bu ishga oldin topshirilganmi?
       const allaqachonTopshirilgan = prev.some((item) => item.id === job.id);
-      
-      // Agar foydalanuvchi qandaydir yo'l bilan bir ishga ikki marta ariza yuborsa:
-      // Hech narsani o'zgartirmasdan, eski ro'yxatning o'zini (prev) qaytaramiz.
       if (allaqachonTopshirilgan) return prev;
-
-      // Agar birinchi marta topshirayotgan bo'lsa:
-      // "[...prev, job]" — Spread operatori: eski arizalarni yangi massivga to'kamiz va orqasidan yangi ishni qo'shamiz.
-      return [...prev, job];
+      return [...prev, job]; // Ro'yxat oxiriga yangi arizani qo'shamiz
     });
-
-    // Ariza qabul qilingach, ekrandagi modal oynani yopamiz (xotirani bo'shatamiz -> null).
-    setSelectedJobForApply(null);
+    setSelectedJobForApply(null); // Ariza ketgach modalni yopamiz
   };
 
-
-  // B) ARIZA TOPSHIRISH MODALINI OCHUVCHI FUNKSIYA
-  // Qaysi vakansiyaning "Ariza topshirish" tugmasi bosilgan bo'lsa, o'sha ish obyekti kirib keladi.
+  // B) ARIZA TOPSHIRISH MODALINI OCHUVCHI FUNKSIYA:
   const handleOpenApplyModal = (job) => {
-    // Xotiraga shu ishni solib qo'yamiz. React buni ko'rib darhol modalni ekranda chizadi.
-    setSelectedJobForApply(job);
+    setSelectedJobForApply(job); // Xotiraga shu ishni solamiz, React modalni chizadi
   };
 
-
-  // C) VAKANSIYANI SAQLASH / SAQLASHNI BEKOR QILISH FUNKSIYASI (TOGGLE)
-  // "Toggle" so'zi chiroqni o'chirib-yoqadigan kalit degani: agar yo'q bo'lsa qo'shadi, bor bo'lsa o'chiradi.
+  // C) VAKANSIYANI SAQLASH / SAQLASHDAN CHIQARISH (TOGGLE):
   const handleToggleSave = (job) => {
     setsavedjob((prev) => {
-      // 1-qadam: Izquvar tekshiruvi. Bu ish avval saqlanganmi?
       const allaqachonbor = prev.some((item) => item.id === job.id);
-
-      // 2-qadam: Agar allaqachon saqlangan bo'lsa (true bo'lsa) — uni o'chirishimiz kerak:
       if (allaqachonbor) {
-        // .filter() — "Sehrli Elak". Faqat ID raqami biz bosgan ishga TENG BO'LMAGANLARNI elakdan o'tkazib qoldiradi.
-        // Natijada, bosilgan ish elakdan tushib qoladi (o'chadi).
+        // Agar bor bo'lsa — elakdan o'tkazib (filter qilib) o'chirib tashlaymiz:
         return prev.filter((item) => item.id !== job.id);
       }
-
-      // 3-qadam: Agar ro'yxatda yo'q bo'lsa — ro'yxatning oxiriga qo'shib yangi massiv yaratamiz.
+      // Agar yo'q bo'lsa — ro'yxatga qo'shamiz:
       return [...prev, job];
     });
   };
 
-
-  // D) SAQLANGAN SAHIFASIDAN BITTA ISHNI BUTUNLAY O'CHIRISH FUNKSIYASI
-  // "jobId" — aynan qaysi raqamli ishni o'chirish kerakligini bildiruvchi raqam (masalan, 2).
+  // D) SAQLANGANLAR RO'YXATIDAN BITTA ISHNI BUTUNLAY O'CHIRISH:
   const handleRemoveSave = (jobId) => {
-    // setsavedjob pultini bosib, elakdan faqat ID-si jobId ga teng bo'lmaganlarini saqlab qolamiz.
     setsavedjob((prev) => prev.filter((item) => item.id !== jobId));
   };
 
-
-  // E) BARCHA SAQLANGAN ISHLARNI BIR ZUMDA TOZALASH (HAMMASINI O'CHIRISH)
+  // E) BARCHA SAQLANGAN ISHLARNI BIR ZUMDA TOZALASH:
   const handleclearAll = () => {
-    // setsavedjob ichiga bo'sh massiv [] solsak, xotira butunlay tozalanadi.
-    setsavedjob([]);
+    setsavedjob([]); // Bo'sh massiv bilan xotirani tozalaymiz
   };
 
+  // F) YANGI VAKANSIYA QO'SHISH YOKI MAVJUDINI TAHRIRLASH (SAVE / UPDATE):
+  // jobData: e'lon ma'lumotlari obyekti
+  // isEdit: true bo'lsa tahrirlash, false bo'lsa yangi qo'shish
+  const handleSaveJob = (jobData, isEdit = false) => {
+    setVakansiyalarRoyxati((prev) => {
+      let yangilangan;
+      if (isEdit) {
+        // 1. Tahrirlash: ro'yxat ichidagi mos ID-li ishni yangi ma'lumotga almashtiramiz
+        yangilangan = prev.map((item) =>
+          item.id === jobData.id ? { ...jobData, isMyJob: true } : item,
+        );
+      } else {
+        // 2. Yangi qo'shish: eng yangi e'lon birinchi bo'lib ko'rinishi uchun boshiga qo'shamiz
+        yangilangan = [{ ...jobData, isMyJob: true }, ...prev];
+      }
+
+      // O'zgarishni brauzer xotirasiga (localStorage) yozib qo'yamiz:
+      try {
+        localStorage.setItem(
+          "job_board_vakansiyalar",
+          JSON.stringify(yangilangan),
+        );
+      } catch (err) {
+        console.error("Localstorage saqlashda xatolik:", err);
+      }
+      return yangilangan;
+    });
+
+    setIsElonModalOpen(false); // Modal oynani yopamiz
+    setEditingJob(null); // Tahrirlash holatini tozalaymiz
+  };
+
+  // G) MAVJUD E'LONNI TAHRIRLASH UCHUN MODALNI OCHISH:
+  const handleOpenEditJob = (job) => {
+    setEditingJob(job); // Tahrirlanayotgan ishni xotiraga yuklaymiz
+    setIsElonModalOpen(true); // Modal oynani ochamiz
+  };
+
+  // H) FOYDALANUVCHINING E'LONINI O'CHIRISH:
+  const handleDeleteMyJob = (jobId) => {
+    setVakansiyalarRoyxati((prev) => {
+      const yangilangan = prev.filter((item) => item.id !== jobId);
+      try {
+        localStorage.setItem(
+          "job_board_vakansiyalar",
+          JSON.stringify(yangilangan),
+        );
+      } catch (err) {
+        console.error("Localstorage saqlashda xatolik:", err);
+      }
+      return yangilangan;
+    });
+
+    // Agar bu ish saqlanganlar orasida ham bo'lsa, u yerdan ham olib tashlaymiz:
+    setsavedjob((prev) => prev.filter((item) => item.id !== jobId));
+  };
+
+  // I) E'LON MODALINI YOPISH:
+  const handleCloseElonModal = () => {
+    setIsElonModalOpen(false);
+    setEditingJob(null);
+  };
 
   // =========================================================================================================
   // 5-QADAM: RETURN (JSX) — FOYDALANUVCHINING KO'ZIGA KO'RINADIGAN VIZUAL DUNYO
   // =========================================================================================================
 
   return (
-    // <BrowserRouter> — butun veb-ilovamizni qamrab oluvchi tashqi qobiq. 
-    // Sayt URL manzili (masalan: "/" yoki "/saqlangan") o'zgarganda sahifani qayta yuklamay boshqaradi.
+    // <BrowserRouter> — Butun sahifalarni qamrab oluvchi tashqi yo'l boshqaruvchisi.
     <BrowserRouter>
+      {/* 
+        <Navbar /> — Saytning doimiy yuqori menyusi.
+        Props orqali saqlanganlar soni, foydalanuvchi e'lonlari soni va modal ochish funksiyasini beramiz:
+      */}
+      <Navbar
+        savedCount={savedjob.length}
+        myJobsCount={myJobs.length}
+        onOpenElonModal={() => {
+          setEditingJob(null); // Yangi e'lon qo'shish rejimi
+          setIsElonModalOpen(true); // Modalni ochish
+        }}
+      />
 
-      {/* <Navbar /> — Doimiy bosh menyu qismi. Saytning eng yuqori qismida doim turadi. */}
-      <Navbar />
-
-      {/* <Routes> — Sahifalar yo'llari xaritasi. URL manzilga qarab ichidagi kerakli <Route> ni ochadi. */}
+      {/* <Routes> — Sahifalar yo'llari xaritasi */}
       <Routes>
-
-        {/* 1-YO'L: Bosh sahifa (path="/") */}
+        {/* 1-YO'L: Bosh sahifa — Vakansiyalar ro'yxati (path="/") */}
         <Route
-          path="/" // Brauzer qidiruv qatorida faqat sayt nomi turgandagi manzil.
+          path="/"
           element={
-            // element={...} — shu manzilga kirganda ekranda chizilishi kerak bo'lgan sahifa.
             <VakansiyalarPage
-              // PROPS (Parametrlar) — ota komponent (App) o'z bolasiga (VakansiyalarPage) berayotgan narsalar:
-              vakansiyalarRoyxati={vakansiyalarRoyxati} // Barcha ishlar ro'yxati
+              vakansiyalarRoyxati={vakansiyalarRoyxati} // Barcha ishlar
               shaharlar={shaharlar} // Shaharlar filtri
               sohalar={sohalar} // Sohalar filtri
               bandlikTurlari={bandlikTurlari} // Bandlik turlari
               maoshVariantlari={maoshVariantlari} // Maosh filtri
-              savedjob={savedjob} // Hozirda qaysi ishlar saqlanganligi (yurakchani qizil qilish uchun)
-              appliedJobs={appliedJobs} // Qaysi ishlarga ariza topshirilganligi (tugmaga "Topshirildi" deb yozish uchun)
-              handleToggleSave={handleToggleSave} // Saqlash tugmasini bosganda ishlaydigan pult
-              onOpenApplyModal={handleOpenApplyModal} // Ariza oynasini ochuvchi pult
+              savedjob={savedjob} // Saqlangan ishlar
+              appliedJobs={appliedJobs} // Arizalar holati
+              handleToggleSave={handleToggleSave} // Saqlash/o'chirish pulti
+              onOpenApplyModal={handleOpenApplyModal} // Ariza modalini ochish pulti
             />
           }
         />
 
         {/* 2-YO'L: Saqlangan ishlar sahifasi (path="/saqlangan") */}
         <Route
-          path="/saqlangan" // Foydalanuvchi "Saqlanganlar" tugmasini bosganda brauzer manzili shu bo'ladi.
+          path="/saqlangan"
           element={
             <SaqlanganPage
-              savedjob={savedjob} // Saqlangan ishlar qutisi (faqat saqlanganlarni ko'rsatish uchun)
-              appliedJobs={appliedJobs} // Arizalar holati
-              handleRemoveSave={handleRemoveSave} // Ro'yxatdan bittalab o'chirish pulti
-              handleclearAll={handleclearAll} // Hammasini tozalash pulti
-              onOpenApplyModal={handleOpenApplyModal} // Bu yerdan turib ham ariza topshirish oynasini ochish imkoni
+              savedjob={savedjob}
+              appliedJobs={appliedJobs}
+              handleRemoveSave={handleRemoveSave}
+              handleclearAll={handleclearAll}
+              onOpenApplyModal={handleOpenApplyModal}
             />
           }
         />
 
+        {/* 3-YO'L: Kompaniyalar sahifasi (path="/kompaniyalar") */}
+        <Route
+          path="/kompaniyalar"
+          element={
+            <KompaniyalarPage
+              vakansiyalarRoyxati={vakansiyalarRoyxati}
+              onOpenApplyModal={handleOpenApplyModal}
+            />
+          }
+        />
+
+        {/* 4-YO'L: Mening e'lonlarim sahifasi (path="/mening-elonlarim") */}
+        <Route
+          path="/mening-elonlarim"
+          element={
+            <MeningElonlarimPage
+              myJobs={myJobs} // Foydalanuvchi yaratgan e'lonlar
+              onEditJob={handleOpenEditJob} // Tahrirlash pulti
+              onDeleteJob={handleDeleteMyJob} // O'chirish pulti
+              onOpenElonModal={() => {
+                setEditingJob(null);
+                setIsElonModalOpen(true);
+              }}
+            />
+          }
+        />
+
+        {/* 5-YO'L: Blog sahifasi (path="/blog") */}
+        <Route path="/blog" element={<BlogPage />} />
       </Routes>
 
       {/* 
-        SHARTLI RENDERLASH (Conditional Rendering) — "&&" (VA) operatori yordamida:
-        selectedJobForApply ? (haqiqatmi?) 
-        Agar selectedJobForApply === null bo'lsa — hech narsa chizilmaydi (yopiq turadi).
-        Agar foydalanuvchi qaysidir ishning "Ariza topshirish" tugmasini bossa va selectedJobForApply ichiga ish obyekti tushsa:
-        Darhol quyidagi <ArizaModal /> ekranda qalqib chiqadi!
+        ARIZA TOPSHIRISH MODALI:
+        selectedJobForApply null bo'lmaganda (foydalanuvchi ishni tanlaganda) ekranda qalqib chiqadi
       */}
       {selectedJobForApply && (
         <ArizaModal
-          // Modal ichida qaysi ish haqida so'z borayotganini bildirish uchun ish ma'lumotlarini beramiz:
           job={selectedJobForApply}
-          
-          // Foydalanuvchi bu ishga allaqachon topshirib bo'lganmi? 
-          // .some() tekshiradi va natija true yoki false bo'lib modalga o'tadi:
           alreadyApplied={appliedJobs.some(
-            (item) => item.id === selectedJobForApply.id
+            (item) => item.id === selectedJobForApply.id,
           )}
-          
-          // Modal oynadagi "X" (yopish) tugmasi bosilganda:
-          // setSelectedJobForApply(null) qilinadi, oyna ko'zdan yo'qoladi.
           onClose={() => setSelectedJobForApply(null)}
-          
-          // Modaldagi anketani to'ldirib, "Yuborish" tugmasi bosilganda:
-          // handleApplySuccess funksiyasi chaqiriladi va arizalar ro'yxatiga qo'shiladi.
           onSubmitSuccess={() => handleApplySuccess(selectedJobForApply)}
         />
       )}
 
+      {/* 
+        YANGI E'LON JOYLASHTIRISH VA TAHRIRLASH MODALI:
+        isElonModalOpen true bo'lganda ochiladi.
+        "key" xossasi orqali tahrirlanayotgan ish o'zgarganda formani yangitdan toza ochilishini ta'minlaymiz!
+      */}
+      <ElonJoylashModal
+        key={editingJob ? `edit-${editingJob.id}` : "new-job"}
+        isOpen={isElonModalOpen}
+        editJob={editingJob}
+        onClose={handleCloseElonModal}
+        onSubmit={handleSaveJob}
+        shaharlar={shaharlar}
+        sohalar={sohalar}
+      />
     </BrowserRouter>
   ); // return tugadi.
 } // App funksiyasi tugadi.
 
-
-// =========================================================================================================
-// 6-QADAM: EXPORT (LOYIHAGA TAQDIM ETISH)
-// =========================================================================================================
-
-// "export default" — bu faylning bosh mahsuloti aynan shu App funksiyasi ekanini bildiradi.
-// index.js (yoki main.jsx) fayli uni olib butun veb-sayt sahifasiga ulaydi.
+// Ushbu bosh komponentni saytga ulanishi uchun eksport qilamiz
 export default App;
 
-
+// =========================================================================================================
 // 2-QISM: ULTRA SLOW-MOTION (VOQEALAR SEKINLASHTIRILGAN KADRDA)
+// =========================================================================================================
 
-// Keling, foydalanuvchi ekranda biror harakat qilganda kompyuterning ichida (RAM, Virtual DOM, haqiqiy DOM) sekundning mingdan bir ulushlarida nimalar ro‘y berishini ko‘ramiz.
-
-// Voqea 1: Foydalanuvchi "Ariza topshirish" tugmasini bosdi
+// Voqea: Foydalanuvchi yangi vakansiya e'lon qildi
 // [0.000 soniya] - FOYDALANUVCHI HARAKATI:
-// Foydalanuvchi 1-vakansiya ("Senior frontend dasturchi") yonidagi "Ariza topshirish" tugmasiga sichqoncha bilan bosdi (Click).
-// [0.001 soniya] - EVENT LISTENER & PROPS ZANJIRI:
-// VakansiyalarPage ichidagi tugma onOpenApplyModal(job) funksiyasini chaqiradi.
-// Bu chaqiruv to'g'ri ota komponentdagi `handleOpenApplyModal(job)` funksiyasiga uzatiladi.
-// [0.002 soniya] - STATE O'ZGARISHI:
-// `setSelectedJobForApply(job)` chaqiriladi.
-// Xotira katakchasidagi `null` qiymati o'rniga 1-ishning obyekti joylashadi:
-// selectedJobForApply = { id: 1, title: "Senior frontend dasturchi", ... }
-// [0.003 soniya] - REACT RE-RENDER:
-// React state o'zgarganini sezadi va butun `App` funksiyasini boshidan qayta o'qib chiqadi.
-// [0.004 soniya] - SHARTLI RENDER TEKSHIRUVI:
-// React kodning pastki qismidagi `{selectedJobForApply && <ArizaModal ... />}` qatoriga keladi.
-// Oldin bu yerda `null && ...` edi (natija yolg'on bo'lib, oyna chizilmagan edi).
-// Hozir esa `{id: 1, ...} && <ArizaModal ... />` (haqiqat!).
-// [0.005 soniya] - BRAUZER EKRANI YANGILANDI:
-// Virtual DOM orqali ekranning ustiga xira qora fon va o'rtada Ariza to'ldirish oynasi (Modal) paydo bo'ladi.
-// Voqea 2: Modaldan ariza yuborildi ("Yuborish" bosildi)
-// [0.000 soniya] - FOYDALANUVCHI HARAKATI:
-// Foydalanuvchi ism-familiyasini yozib, "Yuborish" tugmasini bosdi.
-// [0.001 soniya] - onSubmitSuccess ISHGA TUSHDI:
-// Modal ichidagi hodisa App.jsx dagi `handleApplySuccess(selectedJobForApply)` ga signal beradi.
-// [0.002 soniya] - XAVFSIZ TEKSHIRUV (.some):
-// `setAppliedJobs((prev) => ...)` ichida `prev.some(item => item.id === 1)` ishlaydi.
-// Oldin ariza yuborilganmi? Yo'q, ro'yxatda hali 1 raqamli ish yo'q. Natija: false.
-// [0.003 soniya] - IMMUTABLE (BUZILMAS) YANGILANISH:
-// `[...prev, job]` orqali yangi massiv yasaladi.
-// appliedJobs endi = [{ id: 1, title: "Senior frontend dasturchi", ... }] bo'ldi.
-// [0.004 soniya] - MODALNI YOPISH:
-// Darhol `setSelectedJobForApply(null)` chaqiriladi.
-// Xotiradagi tanlangan ish yana `null` ga aylanadi.
-// [0.005 soniya] - EKRAN IKKI XIL YANGILANADI:
-// 1. Modal oyna ekrandan g'oyib bo'ladi (chunki selectedJobForApply yana null).
-// 2. 1-vakansiyaning "Ariza topshirish" tugmasi avtomatik tarzda "Topshirildi" (yoki faol bo'lmagan) holatga aylanadi.
-// Chunki VakansiyalarPage ichiga uzatilgan appliedJobs endi bo'sh emas!
-// 3-QISM: NEGA AYNAN SHUNDAY YOZILGAN? (DASTURCHI TAFEKKURI)
-
-// Keling, dasturlashdagi 4 ta asosiy "Nega?" savoliga javob beramiz:
-
-// 1. Nega savedjob va appliedJobs App.jsx ichida turibdi? Nega ular VakansiyalarPage ichida emas?
-
-// Sababi (Lifting State Up): Agar biz savedjob xotirasini VakansiyalarPage ichida ochganimizda, SaqlanganPage sahifasi u ma'lumotlarni ko‘ra olmasdi! Chunki ikkita bola sahifa bir-birining xotirasiga to‘g‘ridan-to‘g‘ri kira olmaydi. Shuning uchun React-da umumiy xotira doimo ularning umumiy otasi (App) ichida saqlanadi va bolalarga meros (props) qilib beriladi.
-
-// 2. Nega setsavedjob((prev) => ...) ko‘rinishida yozildi?
-
-// Sababi (Asinxron xavfsizlik): Agar siz setsavedjob([...savedjob, job]) deb yozsangiz, foydalanuvchi tugmani juda tez-tez bosgan paytda, React xotiraning eski nusxasini olib qo‘yishi va ma’lumotlar yo‘qolib ketishi mumkin. (prev) degani — kompyuterga: "Shu daqiqada xotirada eng oxirgi nima bor bo‘lsa, aynan o‘shani olib ber" deb qat'iy kafolat berish demakdir.
-
-// 3. Nega selectedJobForApply uchun alohida boolean (isOpen) ochilmadi?
-
-// Sababi: Yangi o‘rganuvchilar ko‘pincha ikkita state ochishadi: const [isOpen, setIsOpen] = useState(false) va const [selectedJob, setSelectedJob] = useState(null). Bu ortiqcha ish! Agar biz selectedJobForApply ning o‘ziga ish obyektini yuklasak — bu oyna ochiq ekanini bildiradi, agar null qilib qo‘ysak — oyna yopiq ekanini bildiradi. Bitta o‘q bilan ikki quyon uriladi!
-
-// 4. Nega ...prev (uchta nuqta) ishlatiladi? prev.push(job) qilsak bo‘lmaydimi?
-
-// 10 yoshli bolaga tushuntirish: Tasavvur qiling, siz do‘konda yangi kiyim kiymoqchisiz. Agar kiyinib chiqib onangizga ko‘rsatsangiz (...prev — yangi narsa), onangiz o‘zgarishni darhol payqaydi. Agar eski kiyimingizning cho‘ntagiga shunchaki bitta konfet solib qo‘ysangiz (prev.push), onangiz sizga qarab hech qanday o‘zgarish sezmaydi. React ham xuddi shunday: u faqat yangi massiv yaratilgandagina ekranni yangilaydi (bunga Immutability deyiladi).
+// Foydalanuvchi modaldagi formani to'ldirib, "E'lonni joylashtirish" tugmasini bosdi.
+// [0.001 soniya] - ONSUBMIT HODISASI:
+// ElonJoylashModal ichidagi handleSubmit ishga tushib, barcha ma'lumotlarni yig'adi va yangi newJob obyektini yasaydi.
+// [0.002 soniya] - APP.JSX GAYETKAZILISH:
+// `handleSaveJob(jobData, false)` chaqiriladi.
+// [0.003 soniya] - IMMUTABLE MASSIV YANGILANISHI:
+// `[newJob, ...prev]` orqali yangi ish ro'yxatning birinchi o'rniga qo'yiladi.
+// `localStorage.setItem(...)` orqali ma'lumot kompyuterning qattiq diskida saqlab qo'yiladi.
+// [0.004 soniya] - REACT RE-RENDER:
+// `vakansiyalarRoyxati` o'zgargani uchun React butun daraxtni qayta tekshiradi.
+// [0.005 soniya] - EKRANLAR JONLANISHI:
+// 1. Asosiy sahifada yangi kartochka eng tepada paydo bo'ladi.
+// 2. Chap panelda tegishli shaharning hisoblagich raqami 1 taga ko'payadi!
+// 3. Navbar-dagi "Mening e'lonlarim" yonidagi badge raqami oshadi.
+// Barchasi foydalanuvchining ko'z ochib yumishidan 50 baravar tez ro'y beradi!
